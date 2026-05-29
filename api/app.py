@@ -1,19 +1,30 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
+import json
 
 app = Flask(__name__)
 CORS(app)
 
 @app.route('/lignes')
 def get_lignes():
-    return jsonify([
-        {"id": 1, "numero": "1", "depart": "Parcelles", "arrivee": "Pompiers", "arrets": 5},
-        {"id": 2, "numero": "2", "depart": "Dakar", "arrivee": "Thiès", "arrets": 8},
-     {"id": 3, "numero": "3", "depart": "Guédiawaye", "arrivee": "Plateau", "arrets": 6},
-        {"id": 4, "numero": "4", "depart": "Pikine", "arrivee": "Université", "arrets": 7},
-        {"id": 5, "numero": "5", "depart": "Rufisque", "arrivee": "Dakar", "arrets": 10},
-        {"id": 6, "numero": "6", "depart": "Mbao", "arrivee": "HLM", "arrets": 9},
-    ])
+    with open('lignes_ddd.json', 'r', encoding='utf-8') as f:
+        lignes = json.load(f)
+    return jsonify(lignes)
 
+@app.route('/lignes/<int:id>')
+def get_ligne(id):
+    with open('lignes_ddd.json', 'r', encoding='utf-8') as f:
+        lignes = json.load(f)
+    ligne = next((l for l in lignes if l['id'] == id), None)
+    if ligne is None:
+        return jsonify({"erreur": "Ligne non trouvée"}), 404
+    return jsonify(ligne)
+
+with open("arrets.json", "r") as f:
+    arrets = json.load(f)
+
+@app.route("/arrets")
+def get_arrets():
+    return jsonify(arrets)
 if __name__ == '__main__':
     app.run(debug=True)
